@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .green {
+            background-color: #d4edda;
+        }
+        .yellow {
+            background-color: #fff3cd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jobs from IBM Z</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Job ID</th>
+                <th>Return Code</th>
+                <th>Job Name</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for job in jobs %}
+                <tr>
+                    <td><a href="{% url 'view_spool' job.jobid %}">{{ job.jobid }}</a></td>
+                    <td class="{% if job.retcode == 'CC 0000' %}green{% else %}yellow{% endif %}">
+                        {{ job.retcode }}
+                    </td>
+                    <td>{{ job.jobname }}</td>
+                    <td>{{ job.status }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

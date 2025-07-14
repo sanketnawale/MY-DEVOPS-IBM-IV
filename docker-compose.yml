@@ -1,0 +1,24 @@
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+
+  frontend:
+    build:
+      context: ./jobfrontend
+      dockerfile: dockerfile
+    container_name: frontend
+    ports:
+      - "8001:8000"
+    volumes:
+      - ./jobfrontend:/app
+    command: python manage.py runserver 0.0.0.0:8000

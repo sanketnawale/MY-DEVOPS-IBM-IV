@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spool Content for {{ jobid }}</title>
+    <style>
+        .spool-section {
+            margin-bottom: 20px;
+        }
+        .spool-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        .spool-content {
+            background-color: #f4f4f4;
+            padding: 10px;
+            white-space: pre-wrap;
+            border: 1px solid #ccc;
+        }
+        .send-button {
+            display: block;
+            margin: 20px 0;
+            padding: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .send-button:hover {
+            background-color: #45a049;
+        }
+        .response-box {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e0e0e0;
+            border: 1px solid #ccc;
+            white-space: pre-wrap;
+        }
+    </style>
+    <script>
+        async function sendToOllama() {
+            let spoolContent = "";
+            document.querySelectorAll(".spool-content").forEach(section => {
+                spoolContent += section.textContent + "\n";
+            });
+    
+            console.log("📤 Sending spool data:", spoolContent.substring(0, 100) + "...");
+    
+            try {
+                const response = await fetch("/send_spool/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: spoolContent })
+                });
+    
+                const result = await response.json();
+                console.log("📥 Ollama Response:", result);
+    
+                document.getElementById("ollama-response").textContent =
+                    "Ollama AI Response:\n" + (result.response || result.error || "No response received");
+    
+            } catch (error) {
+                console.error("❌ Fetch Error:", error);
+                document.getElementById("ollama-response").textContent =
+                    "Error: Unable to connect to Ollama API.";
+            }
+        }
+    </script>
+    
+</head>
+<body>
+    <h1>Spool Content for Job {{ jobid }}</h1>
+    
+    {% for section in spool_sections %}
+        <div class="spool-section">
+            <div class="spool-title">{{ section.title }}</div>
+            <div class="spool-content">
+                {% for line in section.content %}
+                    {{ line }}<br>
+                {% endfor %}
+            </div>
+        </div>
+    {% endfor %}
+
+    <!-- Button to send spool content to Ollama -->
+    <button class="send-button" onclick="sendToOllama()">Send to Ollama AI</button>
+
+    <!-- Display AI response -->
+    <div id="ollama-response" class="response-box">Waiting for response...</div>
+    
+    <a href="{% url 'job_list' %}">Back to Job List</a>
+</body>
+</html>
